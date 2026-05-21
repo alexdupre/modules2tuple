@@ -1,5 +1,5 @@
-module github.com/dmgk/modules2tuple/v2
+module github.com/alexdupre/modules2tuple/v2
 
-go 1.18
+go 1.25
 
-require github.com/sergi/go-diff v1.1.0
+require github.com/sergi/go-diff v1.4.0

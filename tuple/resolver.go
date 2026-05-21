@@ -5,8 +5,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/dmgk/modules2tuple/v2/config"
-	"github.com/dmgk/modules2tuple/v2/debug"
+	"github.com/alexdupre/modules2tuple/v2/config"
+	"github.com/alexdupre/modules2tuple/v2/debug"
 )
 
 type SourceError string
@@ -162,29 +162,22 @@ func gitlabResolver(pkg string) (*mirror, error) {
 var bazilOrgRe = regexp.MustCompile(`\Abazil\.org/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
 
 func bazilOrgResolver(pkg string) (*mirror, error) {
-	if !bazilOrgRe.MatchString(pkg) {
+	sm := bazilOrgRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	sm := bazilOrgRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
-		return nil, nil
-	}
-	return &mirror{GH, "bazil", sm[0][1], ""}, nil
+	return &mirror{GH, "bazil", sm[1], ""}, nil
 }
 
 // cloud.google.com/go/* -> github.com/googleapis/google-cloud-go
 var cloudGoogleComRe = regexp.MustCompile(`\Acloud\.google\.com/go(?:/([0-9A-Za-z][-0-9A-Za-z]+))?\z`)
 
 func cloudGoogleComResolver(pkg string) (*mirror, error) {
-	if !cloudGoogleComRe.MatchString(pkg) {
+	sm := cloudGoogleComRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	var module string
-	sm := cloudGoogleComRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) > 0 {
-		module = sm[0][1]
-	}
-	return &mirror{GH, "googleapis", "google-cloud-go", module}, nil
+	return &mirror{GH, "googleapis", "google-cloud-go", sm[1]}, nil
 }
 
 // google.golang.org/genproto -> github.com/google/go-genproto
@@ -215,71 +208,55 @@ func codeCloudfoundryOrgResolver(pkg string) (*mirror, error) {
 var goElasticCoModuleRe = regexp.MustCompile(`\Ago\.elastic\.co/apm(?:/(module/[0-9A-Za-z][-0-9A-Za-z]+))?\z`)
 
 func goElasticCoResolver(pkg string) (*mirror, error) {
-	if !goElasticCoModuleRe.MatchString(pkg) {
+	sm := goElasticCoModuleRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	var module string
-	sm := goElasticCoModuleRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) > 0 {
-		module = sm[0][1]
-	}
-	return &mirror{GH, "elastic", "apm-agent-go", module}, nil
+	return &mirror{GH, "elastic", "apm-agent-go", sm[1]}, nil
 }
 
 // go.etcd.io/etcd -> github.com/etcd-io/etcd
 var goEtcdIoRe = regexp.MustCompile(`\Ago\.etcd\.io/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
 
 func goEtcdIoResolver(pkg string) (*mirror, error) {
-	if !goEtcdIoRe.MatchString(pkg) {
+	sm := goEtcdIoRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	sm := goEtcdIoRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
-		return nil, nil
-	}
-	return &mirror{GH, "etcd-io", sm[0][1], ""}, nil
+	return &mirror{GH, "etcd-io", sm[1], ""}, nil
 }
 
 // go.mozilla.org/gopgagent -> github.com/mozilla-services/gopgagent
 var goMozillaOrgRe = regexp.MustCompile(`\Ago\.mozilla\.org/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
 
 func goMozillaOrgResolver(pkg string) (*mirror, error) {
-	if !goMozillaOrgRe.MatchString(pkg) {
+	sm := goMozillaOrgRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	sm := goMozillaOrgRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
-		return nil, nil
-	}
-	return &mirror{GH, "mozilla-services", sm[0][1], ""}, nil
+	return &mirror{GH, "mozilla-services", sm[1], ""}, nil
 }
 
 // go.uber.org/zap -> github.com/uber-go/zap
 var goUberOrgRe = regexp.MustCompile(`\Ago\.uber\.org/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
 
 func goUberOrgResolver(pkg string) (*mirror, error) {
-	if !goUberOrgRe.MatchString(pkg) {
+	sm := goUberOrgRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	sm := goUberOrgRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
-		return nil, nil
-	}
-	return &mirror{GH, "uber-go", sm[0][1], ""}, nil
+	return &mirror{GH, "uber-go", sm[1], ""}, nil
 }
 
 // golang.org/x/pkg -> github.com/golang/pkg
 var golangOrgRe = regexp.MustCompile(`\Agolang\.org/x/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
 
 func golangOrgResolver(pkg string) (*mirror, error) {
-	if !golangOrgRe.MatchString(pkg) {
+	sm := golangOrgRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	sm := golangOrgRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
-		return nil, nil
-	}
-	return &mirror{GH, "golang", sm[0][1], ""}, nil
+	return &mirror{GH, "golang", sm[1], ""}, nil
 }
 
 // gopkg.in/pkg.v3 -> github.com/go-pkg/pkg
@@ -287,24 +264,21 @@ func golangOrgResolver(pkg string) (*mirror, error) {
 var gopkgInRe = regexp.MustCompile(`\Agopkg\.in/([0-9A-Za-z][-0-9A-Za-z]+)(?:\.v.+)?(?:/([0-9A-Za-z][-0-9A-Za-z]+)(?:\.v.+))?\z`)
 
 func gopkgInResolver(pkg string) (*mirror, error) {
-	if !gopkgInRe.MatchString(pkg) {
-		return nil, nil
-	}
 	// fsnotify is a special case in gopkg.in
 	if pkg == "gopkg.in/fsnotify.v1" {
 		return &mirror{GH, "fsnotify", "fsnotify", ""}, nil
 	}
-	sm := gopkgInRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
+	sm := gopkgInRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
 	var account, project string
-	if sm[0][2] == "" {
-		account = "go-" + sm[0][1]
-		project = sm[0][1]
+	if sm[2] == "" {
+		account = "go-" + sm[1]
+		project = sm[1]
 	} else {
-		account = sm[0][1]
-		project = sm[0][2]
+		account = sm[1]
+		project = sm[2]
 	}
 	return &mirror{GH, account, project, ""}, nil
 }
@@ -313,42 +287,33 @@ func gopkgInResolver(pkg string) (*mirror, error) {
 var k8sIoRe = regexp.MustCompile(`\Ak8s\.io/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
 
 func k8sIoResolver(pkg string) (*mirror, error) {
-	if !k8sIoRe.MatchString(pkg) {
+	sm := k8sIoRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	sm := k8sIoRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
-		return nil, nil
-	}
-	return &mirror{GH, "kubernetes", sm[0][1], ""}, nil
+	return &mirror{GH, "kubernetes", sm[1], ""}, nil
 }
 
 // mvdan.cc/editorconfig -> github.com/mvdan/editconfig
 var mvdanCcRe = regexp.MustCompile(`\Amvdan\.cc/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
 
 func mvdanCcResolver(pkg string) (*mirror, error) {
-	if !mvdanCcRe.MatchString(pkg) {
+	sm := mvdanCcRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	sm := mvdanCcRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
-		return nil, nil
-	}
-	return &mirror{GH, "mvdan", sm[0][1], ""}, nil
+	return &mirror{GH, "mvdan", sm[1], ""}, nil
 }
 
 // rsc.io/pdf -> github.com/rsc/pdf
 var rscIoRe = regexp.MustCompile(`\Arsc\.io/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
 
 func rscIoResolver(pkg string) (*mirror, error) {
-	if !rscIoRe.MatchString(pkg) {
+	sm := rscIoRe.FindStringSubmatch(pkg)
+	if sm == nil {
 		return nil, nil
 	}
-	sm := rscIoRe.FindAllStringSubmatch(pkg, -1)
-	if len(sm) == 0 {
-		return nil, nil
-	}
-	return &mirror{GH, "rsc", sm[0][1], ""}, nil
+	return &mirror{GH, "rsc", sm[1], ""}, nil
 }
 
 func gotestToolsResolver(pkg string) (*mirror, error) {

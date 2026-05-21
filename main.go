@@ -7,8 +7,8 @@ import (
 	"os"
 	"path"
 
-	"github.com/dmgk/modules2tuple/v2/config"
-	"github.com/dmgk/modules2tuple/v2/parser"
+	"github.com/alexdupre/modules2tuple/v2/config"
+	"github.com/alexdupre/modules2tuple/v2/parser"
 )
 
 var version = "devel"
@@ -62,7 +62,7 @@ func init() {
 	flag.BoolVar(&config.ShowVersion, "v", false, "")
 
 	flag.Usage = func() {
-		err := usageTemplate.Execute(os.Stderr, map[string]interface{}{
+		err := usageTemplate.Execute(os.Stderr, map[string]any{
 			"basename": basename,
 			"offline":  config.Offline,
 			"debug":    config.Debug,

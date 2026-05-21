@@ -1,11 +1,10 @@
 //go:build e2e
-// +build e2e
 
 package parser
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -26,7 +25,7 @@ func TestParserE2E(t *testing.T) {
 	}
 
 	for n, x := range examples {
-		expected, err := ioutil.ReadFile(x.expected)
+		expected, err := os.ReadFile(x.expected)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -47,7 +46,7 @@ func TestParserE2E(t *testing.T) {
 func loadExamples() (map[string]*example, error) {
 	res := map[string]*example{}
 
-	dir, err := ioutil.ReadDir(testdataPath)
+	dir, err := os.ReadDir(testdataPath)
 	if err != nil {
 		return nil, err
 	}

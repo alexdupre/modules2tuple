@@ -11,7 +11,7 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/dmgk/modules2tuple/v2/tuple"
+	"github.com/alexdupre/modules2tuple/v2/tuple"
 )
 
 // Load parses tuples from vendor/modules.txt at path.
@@ -27,7 +27,7 @@ func Load(path string) (*Result, error) {
 
 // Read parses tuples from modules.txt contents provided as io.Reader.
 func Read(r io.Reader) (*Result, error) {
-	ch := make(chan interface{})
+	ch := make(chan any)
 
 	go func() {
 		defer close(ch)

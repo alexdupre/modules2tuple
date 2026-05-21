@@ -8,9 +8,9 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dmgk/modules2tuple/v2/apis"
-	"github.com/dmgk/modules2tuple/v2/config"
-	"github.com/dmgk/modules2tuple/v2/debug"
+	"github.com/alexdupre/modules2tuple/v2/apis"
+	"github.com/alexdupre/modules2tuple/v2/config"
+	"github.com/alexdupre/modules2tuple/v2/debug"
 )
 
 // Parse parses a package spec into Tuple.
@@ -72,13 +72,11 @@ func parseSpec(spec string) (string, string, error) {
 		return parts[0], "", nil
 	case 2:
 		// regular spec
-		if tagRx.MatchString(parts[1]) {
-			sm := tagRx.FindAllStringSubmatch(parts[1], -1)
-			return parts[0], sm[0][1], nil
+		if sm := tagRx.FindStringSubmatch(parts[1]); sm != nil {
+			return parts[0], sm[1], nil
 		}
-		if versionRx.MatchString(parts[1]) {
-			sm := versionRx.FindAllStringSubmatch(parts[1], -1)
-			return parts[0], sm[0][1], nil
+		if sm := versionRx.FindStringSubmatch(parts[1]); sm != nil {
+			return parts[0], sm[1], nil
 		}
 		return "", "", fmt.Errorf("unexpected version string in spec: %q", spec)
 	default:
@@ -252,12 +250,8 @@ func fixGroups(s Slice) {
 
 	var maxGroup, maxPkg int
 	for _, t := range s {
-		if len(t.group) > maxGroup {
-			maxGroup = len(t.group)
-		}
-		if len(t.pkg) > maxPkg {
-			maxPkg = len(t.pkg)
-		}
+		maxGroup = max(maxGroup, len(t.group))
+		maxPkg = max(maxPkg, len(t.pkg))
 	}
 
 	key := func(i int) string {
@@ -387,15 +381,9 @@ func fixGithubProjectsAndTags(s Slice) error {
 func fixSubdirs(s Slice) {
 	var maxSubdir, maxVersion, maxModule int
 	for _, t := range s {
-		if len(t.subdir) > maxSubdir {
-			maxSubdir = len(t.subdir)
-		}
-		if len(t.version) > maxVersion {
-			maxVersion = len(t.version)
-		}
-		if len(t.module) > maxModule {
-			maxModule = len(t.module)
-		}
+		maxSubdir = max(maxSubdir, len(t.subdir))
+		maxVersion = max(maxVersion, len(t.version))
+		maxModule = max(maxModule, len(t.module))
 	}
 
 	key := func(i int) string {

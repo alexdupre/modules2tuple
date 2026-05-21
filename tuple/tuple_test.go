@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dmgk/modules2tuple/v2/config"
+	"github.com/alexdupre/modules2tuple/v2/config"
 )
 
 func init() {

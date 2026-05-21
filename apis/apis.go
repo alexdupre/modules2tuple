@@ -3,7 +3,7 @@ package apis
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 )
 
@@ -27,7 +27,7 @@ func get(url, username, token string) ([]byte, error) {
 
 	switch resp.StatusCode {
 	case http.StatusOK:
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return nil, fmt.Errorf("apis.get %s: %v", url, err)
 		}
@@ -35,7 +35,7 @@ func get(url, username, token string) ([]byte, error) {
 	case http.StatusNotFound:
 		return nil, errNotFound
 	default:
-		body, _ := ioutil.ReadAll(resp.Body)
+		body, _ := io.ReadAll(resp.Body)
 		return nil, fmt.Errorf("apis.get %s: %d, body: %v", url, resp.StatusCode, string(body))
 	}
 }
