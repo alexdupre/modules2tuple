@@ -74,6 +74,10 @@ func TestGitlabResolver(t *testing.T) {
 func TestMirrorResolver(t *testing.T) {
 	examples := []resolverExample{
 		{"camlistore.org", GH, "perkeep", "perkeep", ""},
+		// "github.com/docker/docker" static mirror must not swallow sibling repos
+		// whose name happens to start with "docker".
+		{"github.com/docker/docker", GH, "moby", "moby", ""},
+		{"github.com/docker/docker-credential-helpers", GH, "docker", "docker-credential-helpers", ""},
 		{"docker.io/go-docker", GH, "docker", "go-docker", ""},
 		{"git.apache.org/thrift.git", GH, "apache", "thrift", ""},
 		{"go.bug.st/serial.v1", GH, "bugst", "go-serial", ""},
@@ -153,13 +157,23 @@ func TestCloudGoogleComResolver(t *testing.T) {
 	testResolverFnExamples(t, "cloudGoogleComResolver", cloudGoogleComResolver, examples)
 }
 
-// func TestCodeCloudfoundryOrgResolver(t *testing.T) {
-// 	examples := []resolverExample{
-// 		// name, expected account, expected project
-// 		{"code.cloudfoundry.org/gofileutils", GH, "cloudfoundry", "gofileutils", ""},
-// 	}
-// 	testResolverFnExamples(t, "codeCloudfoundryOrgResolver", codeCloudfoundryOrgResolver, examples)
-// }
+func TestGoogleGenprotoResolver(t *testing.T) {
+	examples := []resolverExample{
+		{"google.golang.org/genproto", GH, "google", "go-genproto", ""},
+		{"google.golang.org/genproto/googleapis/api", GH, "google", "go-genproto", "googleapis/api"},
+		{"google.golang.org/genproto/googleapis/rpc", GH, "google", "go-genproto", "googleapis/rpc"},
+	}
+	testResolverFnExamples(t, "googleGenprotoResolver", googleGenprotoResolver, examples)
+}
+
+func TestCodeCloudfoundryOrgResolver(t *testing.T) {
+	examples := []resolverExample{
+		{"code.cloudfoundry.org/gofileutils", GH, "cloudfoundry", "gofileutils", ""},
+		{"code.cloudfoundry.org/clock", GH, "cloudfoundry", "clock", ""},
+		{"code.cloudfoundry.org/credhub-cli", GH, "cloudfoundry", "credhub-cli", ""},
+	}
+	testResolverFnExamples(t, "codeCloudfoundryOrgResolver", codeCloudfoundryOrgResolver, examples)
+}
 
 func TestGoEtcdIoResolver(t *testing.T) {
 	examples := []resolverExample{

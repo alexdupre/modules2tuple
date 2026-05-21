@@ -29,7 +29,8 @@ func Resolve(pkg, version, subdir, link_target string) (*Tuple, error) {
 	for {
 		// try static mirror lookup first
 		for _, r := range resolvers {
-			if strings.HasPrefix(pkg, r.prefix) {
+			// match on path-component boundary: either exact equality or `prefix + "/"`.
+			if pkg == r.prefix || strings.HasPrefix(pkg, r.prefix+"/") {
 				m, err := r.resolver.resolve(pkg)
 				if err != nil {
 					return nil, err
@@ -94,6 +95,7 @@ var resolvers = []struct {
 	{"bazil.org", mirrorFn(bazilOrgResolver)},
 	{"camlistore.org", &mirror{GH, "perkeep", "perkeep", ""}},
 	{"cloud.google.com", mirrorFn(cloudGoogleComResolver)},
+	{"code.cloudfoundry.org", mirrorFn(codeCloudfoundryOrgResolver)},
 	{"docker.io/go-docker", &mirror{GH, "docker", "go-docker", ""}},
 	{"git.apache.org/thrift.git", &mirror{GH, "apache", "thrift", ""}},
 	{"go.bug.st/serial.v1", &mirror{GH, "bugst", "go-serial", ""}},
@@ -110,7 +112,7 @@ var resolvers = []struct {
 	{"golang.zx2c4.com/wireguard", &mirror{GH, "wireguard", "wireguard-go", ""}},
 	{"google.golang.org/api", &mirror{GH, "googleapis", "google-api-go-client", ""}},
 	{"google.golang.org/appengine", &mirror{GH, "golang", "appengine", ""}},
-	{"google.golang.org/genproto", &mirror{GH, "google", "go-genproto", ""}},
+	{"google.golang.org/genproto", mirrorFn(googleGenprotoResolver)},
 	{"google.golang.org/grpc", &mirror{GH, "grpc", "grpc-go", ""}},
 	{"google.golang.org/protobuf", &mirror{GH, "protocolbuffers", "protobuf-go", ""}},
 	{"gopkg.in", mirrorFn(gopkgInResolver)},
@@ -185,19 +187,28 @@ func cloudGoogleComResolver(pkg string) (*mirror, error) {
 	return &mirror{GH, "googleapis", "google-cloud-go", module}, nil
 }
 
-// // code.cloudfoundry.org/gofileutils -> github.com/cloudfoundry/gofileutils
-// var codeCloudfoundryOrgRe = regexp.MustCompile(`\Acode\.cloudfoundry\.org/([0-9A-Za-z][-0-9A-Za-z]+)\z`)
+// google.golang.org/genproto -> github.com/google/go-genproto
+// google.golang.org/genproto/googleapis/api -> github.com/google/go-genproto (submodule "googleapis/api")
+var googleGenprotoRe = regexp.MustCompile(`\Agoogle\.golang\.org/genproto(?:/(.+))?\z`)
 
-// func codeCloudfoundryOrgResolver(pkg string) (*mirror, error) {
-// 	if !codeCloudfoundryOrgRe.MatchString(pkg) {
-// 		return nil, nil
-// 	}
-// 	sm := codeCloudfoundryOrgRe.FindAllStringSubmatch(pkg, -1)
-// 	if len(sm) == 0 {
-// 		return nil, nil
-// 	}
-// 	return &mirror{GH, "cloudfoundry", sm[0][1], ""}, nil
-// }
+func googleGenprotoResolver(pkg string) (*mirror, error) {
+	sm := googleGenprotoRe.FindStringSubmatch(pkg)
+	if sm == nil {
+		return nil, nil
+	}
+	return &mirror{GH, "google", "go-genproto", sm[1]}, nil
+}
+
+// code.cloudfoundry.org/lager -> github.com/cloudfoundry/lager
+var codeCloudfoundryOrgRe = regexp.MustCompile(`\Acode\.cloudfoundry\.org/([0-9A-Za-z][-.0-9A-Za-z]+)\z`)
+
+func codeCloudfoundryOrgResolver(pkg string) (*mirror, error) {
+	sm := codeCloudfoundryOrgRe.FindStringSubmatch(pkg)
+	if sm == nil {
+		return nil, nil
+	}
+	return &mirror{GH, "cloudfoundry", sm[1], ""}, nil
+}
 
 // go.elastic.co/apm -> github.com/elastic/apm-agent-go
 // go.elastic.co/apm/module/apmhttp -> github.com/elastic/apm-agent-go/module/apmhttp

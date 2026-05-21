@@ -21,17 +21,25 @@ func discoverMirrors(pkg string) (string, error) {
 	}
 	defer resp.Body.Close()
 
-	switch resp.StatusCode {
-	case http.StatusOK:
-		return parseMetaGoImports(resp.Body)
-	default:
+	if resp.StatusCode != http.StatusOK {
 		return "", fmt.Errorf("tuple.discoverMirrors %s: status %d", u, resp.StatusCode)
 	}
+
+	prefix, repo, err := parseMetaGoImports(resp.Body)
+	if err != nil || repo == "" {
+		return repo, err
+	}
+	// The go-import prefix tells how much of the requested pkg path is the
+	// module root; everything past it is a submodule path inside that repo.
+	if prefix != "" && pkg != prefix && strings.HasPrefix(pkg, prefix+"/") {
+		return repo + "/" + strings.TrimPrefix(pkg, prefix+"/"), nil
+	}
+	return repo, nil
 }
 
 // HTML meta imports discovery code adopted from
 // https://github.com/golang/go/blob/master/src/cmd/go/internal/get/discovery.go
-func parseMetaGoImports(r io.Reader) (string, error) {
+func parseMetaGoImports(r io.Reader) (prefix, repo string, err error) {
 	d := xml.NewDecoder(r)
 	d.CharsetReader = charsetReader
 	d.Strict = false
@@ -40,7 +48,7 @@ func parseMetaGoImports(r io.Reader) (string, error) {
 		t, err := d.RawToken()
 		if err != nil {
 			if err != io.EOF {
-				return "", err
+				return "", "", err
 			}
 			break
 		}
@@ -59,12 +67,12 @@ func parseMetaGoImports(r io.Reader) (string, error) {
 		}
 		if f := strings.Fields(attrValue(e.Attr, "content")); len(f) == 3 {
 			if f[1] == "git" {
-				repo := schemeRe.ReplaceAllString(f[2], "")
-				return suffixRe.ReplaceAllString(repo, ""), nil
+				r := schemeRe.ReplaceAllString(f[2], "")
+				return f[0], suffixRe.ReplaceAllString(r, ""), nil
 			}
 		}
 	}
-	return "", nil
+	return "", "", nil
 }
 
 var (

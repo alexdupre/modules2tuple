@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/url"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"github.com/dmgk/modules2tuple/v2/config"
@@ -87,6 +88,15 @@ func GithubListTags(account, project, prefix string) ([]string, error) {
 
 	var refs []GithubRef
 	if err := json.Unmarshal(resp, &refs); err != nil {
+		if _, ok := err.(*json.UnmarshalTypeError); ok {
+			// type mismatch: prefix matched an exact tag, so the API returned a single
+			// object instead of an array. Decode it and return as a one-element slice.
+			var ref GithubRef
+			if err := json.Unmarshal(resp, &ref); err != nil {
+				return nil, fmt.Errorf("error unmarshalling: %v, resp: %v", err, string(resp))
+			}
+			return []string{ref.Ref}, nil
+		}
 		return nil, fmt.Errorf("error unmarshalling: %v, resp: %v", err, string(resp))
 	}
 
@@ -98,29 +108,36 @@ func GithubListTags(account, project, prefix string) ([]string, error) {
 	return res, nil
 }
 
+var majorVersionSuffixRe = regexp.MustCompile(`/v[2-9]\d*$`)
+
 func GithubLookupTag(account, project, path, tag string) (string, error) {
+	// For submodules, prefer the path-prefixed tag form (e.g. "featuregate/v1.9.0"):
+	// multi-module repos often also tag the root at the same version (e.g. "v1.9.0"),
+	// which would otherwise be picked up and point at the wrong tree.
+	//
+	// When the path ends in a Go "/vN" major-version suffix (e.g. ".../endpoints/v2"),
+	// strip it: the real tag is "endpoints/v2.6.9", not "endpoints/v2/v2.6.9".
+	lookupPath := majorVersionSuffixRe.ReplaceAllString(path, "")
+	if lookupPath != "" {
+		allTags, err := GithubListTags(account, project, lookupPath)
+		if err != nil {
+			return "", err
+		}
+		// Github API returns tags sorted by creation time, earliest first.
+		// Iterate through them in reverse order to find the most recent matching tag.
+		for i := len(allTags) - 1; i >= 0; i-- {
+			if strings.HasSuffix(allTags[i], filepath.Join(lookupPath, tag)) {
+				return strings.TrimPrefix(allTags[i], "refs/tags/"), nil
+			}
+		}
+	}
+
 	hasTag, err := GithubHasTag(account, project, tag)
 	if err != nil {
 		return "", err
 	}
-
-	// tag was found as-is
 	if hasTag {
 		return tag, nil
-	}
-
-	// tag was not found, try to look it up
-	allTags, err := GithubListTags(account, project, path)
-	if err != nil {
-		return "", err
-	}
-
-	// Github API returns tags sorted by creation time, earliest first.
-	// Iterate through them in reverse order to find the most recent matching tag.
-	for i := len(allTags) - 1; i >= 0; i-- {
-		if strings.HasSuffix(allTags[i], filepath.Join(path, tag)) {
-			return strings.TrimPrefix(allTags[i], "refs/tags/"), nil
-		}
 	}
 
 	return "", fmt.Errorf("tag %v doesn't seem to exist in %s/%s", tag, account, project)

@@ -1,8 +1,8 @@
 GH_TUPLE=	\
-		Azure:go-autorest:5bd9621f41a0:azure_go_autorest_date/vendor/github.com/Azure/go-autorest \
+		Azure:go-autorest:autorest/adal/v0.8.3:azure_go_autorest_adal \
+		Azure:go-autorest:autorest/date/v0.2.0:azure_go_autorest_date \
 		Azure:go-autorest:autorest/v0.10.1:azure_go_autorest_autorest \
-		Azure:go-autorest:e727cfcfc902:azure_go_autorest_adal \
-		Azure:go-autorest:logger/v0.1.0:azure_go_autorest_logger \
+		Azure:go-autorest:logger/v0.1.0:azure_go_autorest_logger/vendor/github.com/Azure/go-autorest \
 		Azure:go-autorest:tracing/v0.5.0:azure_go_autorest_tracing \
 		DataDog:datadog-go:v3.2.0:datadog_datadog_go/vendor/github.com/DataDog/datadog-go \
 		Masterminds:squirrel:v1.1.0:masterminds_squirrel/vendor/github.com/Masterminds/squirrel \
@@ -137,6 +137,8 @@ GH_TUPLE=	\
 		nu7hatch:gouuid:179d4d0c4d8d:nu7hatch_gouuid/vendor/github.com/nu7hatch/gouuid \
 		onsi:ginkgo:v1.12.0:onsi_ginkgo/vendor/github.com/onsi/ginkgo \
 		onsi:gomega:v1.10.0:onsi_gomega/vendor/github.com/onsi/gomega \
+		open-telemetry:opentelemetry-go:exporter/trace/jaeger/v0.2.1:open_telemetry_opentelemetry_go_jaeger \
+		open-telemetry:opentelemetry-go:exporter/trace/stackdriver/v0.2.1:open_telemetry_opentelemetry_go_stackdriver \
 		open-telemetry:opentelemetry-go:v0.2.1:open_telemetry_opentelemetry_go/vendor/go.opentelemetry.io/otel \
 		opencontainers:go-digest:v1.0.0-rc1:opencontainers_go_digest/vendor/github.com/opencontainers/go-digest \
 		opencontainers:image-spec:v1.0.1:opencontainers_image_spec/vendor/github.com/opencontainers/image-spec \
@@ -178,9 +180,13 @@ post-extract:
 	@${RLN} ${WRKSRC_azure_go_autorest_autorest}/autorest ${WRKSRC}/vendor/github.com/Azure/go-autorest/autorest
 	@${RM} -r ${WRKSRC}/vendor/github.com/Azure/go-autorest/autorest/adal
 	@${RLN} ${WRKSRC_azure_go_autorest_adal}/autorest/adal ${WRKSRC}/vendor/github.com/Azure/go-autorest/autorest/adal
-	@${RM} -r ${WRKSRC}/vendor/github.com/Azure/go-autorest/logger
-	@${RLN} ${WRKSRC_azure_go_autorest_logger}/logger ${WRKSRC}/vendor/github.com/Azure/go-autorest/logger
+	@${RM} -r ${WRKSRC}/vendor/github.com/Azure/go-autorest/autorest/date
+	@${RLN} ${WRKSRC_azure_go_autorest_date}/autorest/date ${WRKSRC}/vendor/github.com/Azure/go-autorest/autorest/date
 	@${RM} -r ${WRKSRC}/vendor/github.com/Azure/go-autorest/tracing
 	@${RLN} ${WRKSRC_azure_go_autorest_tracing}/tracing ${WRKSRC}/vendor/github.com/Azure/go-autorest/tracing
 	@${RM} -r ${WRKSRC}/vendor/github.com/hashicorp/vault/api
 	@${RLN} ${WRKSRC_hashicorp_vault_api}/api ${WRKSRC}/vendor/github.com/hashicorp/vault/api
+	@${RM} -r ${WRKSRC}/vendor/go.opentelemetry.io/otel/exporter/trace/jaeger
+	@${RLN} ${WRKSRC_open_telemetry_opentelemetry_go_jaeger}/exporter/trace/jaeger ${WRKSRC}/vendor/go.opentelemetry.io/otel/exporter/trace/jaeger
+	@${RM} -r ${WRKSRC}/vendor/go.opentelemetry.io/otel/exporter/trace/stackdriver
+	@${RLN} ${WRKSRC_open_telemetry_opentelemetry_go_stackdriver}/exporter/trace/stackdriver ${WRKSRC}/vendor/go.opentelemetry.io/otel/exporter/trace/stackdriver

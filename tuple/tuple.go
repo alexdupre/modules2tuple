@@ -2,7 +2,6 @@ package tuple
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"path/filepath"
 	"regexp"
@@ -164,19 +163,6 @@ func (t *Tuple) Fix() error {
 				debug.Printf("[Tuple.Fix] trimmed module suffix %q from %q\n", t.module, t.subdir)
 				t.subdir = strings.TrimSuffix(t.subdir, "/"+t.module)
 			}
-		}
-		// Ports framework doesn't understand tags that have more than 2 path separators in it,
-		// replace by commit ID
-		if len(strings.Split(t.version, "/")) > 2 {
-			hash, err := apis.GithubGetCommit(t.account, t.project, t.version)
-			if err != nil {
-				return err
-			}
-			if len(hash) < 12 {
-				return errors.New("unexpectedly short Githib commit hash")
-			}
-			debug.Printf("[Tuple.Fix] translated Github tag %q to %q\n", t.version, hash[:12])
-			t.version = hash[:12]
 		}
 	case GitlabSource:
 		// Call Gitlab API to translate go.mod short commit IDs and tags

@@ -3,7 +3,7 @@ GH_TUPLE=	\
 		Azure:azure-sdk-for-go:v36.1.0:azure_azure_sdk_for_go/vendor/github.com/Azure/azure-sdk-for-go \
 		Azure:azure-storage-blob-go:v0.8.0:azure_azure_storage_blob_go/vendor/github.com/Azure/azure-storage-blob-go \
 		Azure:go-autorest:3492b2aff503:azure_go_autorest_autorest/vendor/github.com/Azure/go-autorest \
-		Azure:go-autorest:5bd9621f41a0:azure_go_autorest_date \
+		Azure:go-autorest:autorest/date/v0.2.0:azure_go_autorest_date \
 		Azure:go-autorest:logger/v0.1.0:azure_go_autorest_logger \
 		Azure:go-autorest:tracing/v0.5.0:azure_go_autorest_tracing \
 		BurntSushi:toml:v0.3.1:burntsushi_toml/vendor/github.com/BurntSushi/toml \
@@ -29,6 +29,8 @@ GH_TUPLE=	\
 		dgrijalva:jwt-go:v3.2.0:dgrijalva_jwt_go/vendor/github.com/dgrijalva/jwt-go \
 		dominikh:go-tools:v0.0.1-2019.2.3:dominikh_go_tools/vendor/honnef.co/go/tools \
 		edsrzf:mmap-go:v1.0.0:edsrzf_mmap_go/vendor/github.com/edsrzf/mmap-go \
+		elastic:apm-agent-go:module/apmhttp/v1.5.0:elastic_apm_agent_go_apmhttp \
+		elastic:apm-agent-go:module/apmot/v1.5.0:elastic_apm_agent_go_apmot \
 		elastic:apm-agent-go:v1.5.0:elastic_apm_agent_go/vendor/go.elastic.co/apm \
 		elastic:go-fastjson:v1.0.0:elastic_go_fastjson/vendor/go.elastic.co/fastjson \
 		elastic:go-sysinfo:v1.1.1:elastic_go_sysinfo/vendor/github.com/elastic/go-sysinfo \
@@ -88,7 +90,7 @@ GH_TUPLE=	\
 		grpc-ecosystem:go-grpc-prometheus:v1.2.0:grpc_ecosystem_go_grpc_prometheus/vendor/github.com/grpc-ecosystem/go-grpc-prometheus \
 		grpc-ecosystem:grpc-gateway:v1.12.1:grpc_ecosystem_grpc_gateway/vendor/github.com/grpc-ecosystem/grpc-gateway \
 		grpc:grpc-go:v1.25.1:grpc_grpc_go/vendor/google.golang.org/grpc \
-		hashicorp:consul:v1.3.0:hashicorp_consul_api/vendor/github.com/hashicorp/consul \
+		hashicorp:consul:api/v1.3.0:hashicorp_consul_api/vendor/github.com/hashicorp/consul \
 		hashicorp:go-cleanhttp:v0.5.1:hashicorp_go_cleanhttp/vendor/github.com/hashicorp/go-cleanhttp \
 		hashicorp:go-immutable-radix:v1.1.0:hashicorp_go_immutable_radix/vendor/github.com/hashicorp/go-immutable-radix \
 		hashicorp:go-rootcerts:v1.0.1:hashicorp_go_rootcerts/vendor/github.com/hashicorp/go-rootcerts \
@@ -166,6 +168,10 @@ post-extract:
 	@${RLN} ${WRKSRC_azure_go_autorest_tracing}/tracing ${WRKSRC}/vendor/github.com/Azure/go-autorest/tracing
 	@${RM} -r ${WRKSRC}/vendor/github.com/googleapis/gax-go/v2
 	@${RLN} ${WRKSRC_googleapis_gax_go_v2}/v2 ${WRKSRC}/vendor/github.com/googleapis/gax-go/v2
+	@${RM} -r ${WRKSRC}/vendor/go.elastic.co/apm/module/apmhttp
+	@${RLN} ${WRKSRC_elastic_apm_agent_go_apmhttp}/module/apmhttp ${WRKSRC}/vendor/go.elastic.co/apm/module/apmhttp
+	@${RM} -r ${WRKSRC}/vendor/go.elastic.co/apm/module/apmot
+	@${RLN} ${WRKSRC_elastic_apm_agent_go_apmot}/module/apmot ${WRKSRC}/vendor/go.elastic.co/apm/module/apmot
 	@${MKDIR} ${WRKSRC}/vendor/gopkg.in
 	@${RLN} ${WRKSRC_fsnotify_fsnotify} ${WRKSRC}/vendor/gopkg.in/fsnotify.v1
 	@${MKDIR} ${WRKSRC}/vendor/gopkg.in/fsnotify

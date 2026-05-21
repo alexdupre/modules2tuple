@@ -35,6 +35,10 @@ func TestGithubLookupTag(t *testing.T) {
 		{"hashicorp", "vault", "sdk", "v0.1.13", "sdk/v0.1.13"},
 		// this repo has earlier mathing tag "codec/codecgen/v1.1.7"
 		{"ugorji", "go", "", "v1.1.7", "v1.1.7"},
+		// repo tags both root "v1.9.0" and submodule "featuregate/v1.9.0"
+		{"open-telemetry", "opentelemetry-collector", "featuregate", "v1.9.0", "featuregate/v1.9.0"},
+		// submodule path has go major-version suffix
+		{"aws", "aws-sdk-go-v2", "internal/endpoints/v2", "v2.6.9", "internal/endpoints/v2.6.9"},
 	}
 
 	for i, x := range examples {
